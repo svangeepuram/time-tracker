@@ -1,12 +1,24 @@
-pipeline{
-agent any 
-stages{ 
-stage('Build') { 
-steps{
-checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '3fff6072-5793-4db5-9842-f9cea644f606', url: 'https://github.com/jenkins-training/time-tracker.git']]])
-} 
-}
- 
-    
-}
+pipeline { 
+    agent any 
+    options {
+        skipStagesAfterUnstable()
+    }
+    stages {
+        stage('Build') { 
+            steps { 
+                sh 'make' 
+            }
+        }
+        stage('Test'){
+            steps {
+                sh 'make check'
+                junit 'reports/**/*.xml' 
+            }
+        }
+        stage('Deploy') {
+            steps {
+                sh 'make publish'
+            }
+        }
+    }
 }
